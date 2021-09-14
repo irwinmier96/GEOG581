@@ -153,12 +153,14 @@ function draw() {
 
 //Beginning screen of the game
 function startScreen(){
-		background(196, 107, 255)
-		fill(255)
-		textAlign(CENTER);
+	background(196, 107, 255)
+	fill(255)
+	textAlign(CENTER);
         textSize(20);
-		text('SNAKE DODGEBALL: Avoid the balls to win!', width / 2, height / 2)
-		text('click to start', width / 2, height / 2 + 20);
+	textStyle(BOLD);
+    	fill(0);
+	text('SNAKE DODGEBALL: Avoid the balls to win!', width / 2, height / 2)
+	text('click to start', width / 2, height / 2 + 20);
 
 }
 
