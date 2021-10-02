@@ -1,0 +1,145 @@
+imgX = 0;
+imgY = 0;
+imgW = 0;
+imgH = 0;
+
+//pan variables
+panFromX = 0;
+panFromY = 0;
+panToX = 0;
+panToY = 0;
+
+
+function preload(){
+  img = loadImage('data/Campus100dpi.png'); //satellite
+  imgBldgs = loadImage('data/Buildings100dpi.png'); //building shapes
+  tblBldgs = loadTable('data/Building_Codes_updated.csv', 'csv', 'header');
+}
+
+
+function setup() {
+  createCanvas(800, 450);
+  imgW = img.width;
+  imgH = img.height;
+}
+
+function draw() {
+  background(0);
+  mainImg = image(img, imgX, imgY, imgW, imgH); //larger image in main screen
+  bldgImg = image(img, imgX, imgY, imgW, imgH); //building map (added)
+  overviewImg = image(img, 600, 0, 200, (200 * img.height) / img.width); //smaller image
+  introScreen()
+  
+}
+
+function introScreen(){
+  rect1 = rect(600,120,200,450);
+  //fill(115);
+  textSize(15);
+  textFont('Helvetica');  
+  text("Refillable Water Stations of SDSU: Click and hover on any part of the map", 610, 150, 170, 170);
+  mousePressed(); //returns name of building if hovered over
+  //keyPressed();  // will zoom in continuously if pressed
+}
+
+function getFeatureName(grayVal, tbl) {
+  name = "";
+  //iterate over entries in this table given
+  for (var i=1; i<tbl.getRowCount(); i++){
+    var code = tbl.get(i, "Pixel_Val");
+    if(grayVal == code){
+      name = tbl.get(i, "Name");
+      //console.log(i, name);
+      return name;
+      // text(name, 610, 300, 150, 150);
+    }
+  }
+}
+
+function mousePressed() {
+  panFromX = mouseX;
+  panFromY = mouseY;
+  bldgCode = red(imgBldgs.get(mouseX, mouseY));
+  bldgName = getFeatureName(bldgCode, tblBldgs); //references building shapes and csv file 
+  //console.log(bldgName);
+  textFont("Helvetica");
+  textSize(20);
+  returnName = text(bldgName, 610, 300, 150, 150);
+  //mouseDragged();
+  //keyPressed();
+}
+
+function mouseDragged() {
+
+  
+  leftWall = 0; //boundary of left side of canvas
+  rightWall = 600; //boundary of right side of original image size
+  upperWall = 0; //boundary for upper side of canvas
+  bottomWall = 450; //boundary for bottom side of canvas
+  
+  originalFramex = rightWall - leftWall;
+  originalFramey = bottomWall - upperWall;
+  
+  panToX = mouseX;
+  panToY = mouseY;
+  xShift = panToX - panFromX;
+  yShift = panToY - panFromY;
+  imgX = imgX + xShift;
+  imgY = imgY + yShift;
+  
+  //generalize the variables so that it can be used regardless of image size
+
+  let xm = mouseX;
+  
+  pamFromX = panToX;
+  panFromY = panToY;
+  
+  //constrain original sized image in default position
+  if ((imgW == rightWall) && (imgH == bottomWall) || (imgW < rightWall) || (imgH < bottomWall)) { 
+    imgX = constrain(imgX, leftWall, rightWall - imgW);
+    imgY = constrain(imgY, upperWall, bottomWall  - imgH);
+  }
+  
+  //make new conditions if image size is bigger than size of original screen
+  if ((imgW > rightWall) || (imgH > bottomWall)) {
+    imgX = constrain(imgX, -(imgW - originalFramex), -(imgW - originalFramex) + (imgW - rightWall));
+    imgY = constrain(imgY, -(imgH - originalFramey), -(imgH - originalFramey) + (imgH - bottomWall));
+  } 
+  //this constrains the enlarged image within the canvas if the borders of the image touch the borders of the canvas size
+
+  
+}
+
+function keyPressed() {
+  
+  // zoom in and zoom out of the main photo
+  // try to match building names to zoomed in photo
+  
+  scaleFactor = 0.01;
+  
+  //zoom in
+  if (key == 'p'){
+    imgW = int(imgW * (1 + scaleFactor));
+    imgH = int(imgH * (1 + scaleFactor));
+    //imgX = constrain(imgX, -leftWall * (1 + scaleFactor), -rightWall * (1 + scaleFactor));
+  }
+  
+  //zoom out
+  if (key == 'm'){
+    imgW = int(imgW * (1 - scaleFactor));
+    imgH = int(imgH * (1 - scaleFactor));
+  }
+}
+
+function mouseWheel(event) {
+  scaleFactor  = event.delta * 0.001;
+  //delta is known to mouseWheel  
+  imgW = int(imgW * (1 + scaleFactor));
+  imgH = int(imgH * (1 + scaleFactor));
+  mousePressed();
+}
+
+function windowResize() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+
