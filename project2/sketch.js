@@ -3,6 +3,12 @@ imgY = 0;
 imgW = 0;
 imgH = 0;
 
+//give imgBldgs own variables attempt to map to img map
+imgBldgX = 0;
+imgBldgY = 0;
+imgBldgW = 0;
+imgBldgH = 0;
+
 //pan variables
 panFromX = 0;
 panFromY = 0;
@@ -14,18 +20,20 @@ rightWall = 600; //boundary of right side of original image size
 upperWall = 0; //boundary for upper side of canvas
 bottomWall = 450; //boundary for bottom side of canvas
 
-
 function preload() { 
   img = loadImage('data/Campus100dpi.png'); //satellite
   imgBldgs = loadImage('data/Buildings100dpi.png'); //building shapes
   tblBldgs = loadTable('data/Building_Codes_updated.csv', 'csv', 'header');
 }
 
-
 function setup() {
   createCanvas(800, 450);
   imgW = img.width;
   imgH = img.height;
+  
+  imgBldgW = imgBldgs.width;
+  imgBldgH = imgBldgs.height;
+  
 }
 
 function draw() {
@@ -35,7 +43,6 @@ function draw() {
   overviewImg = image(img, 600, 0, 200, (200 * img.height) / img.width); //smaller image
   
   introScreen();
-  ifSmallImage();
   ifLargerImage();
   originalSize();
 }
@@ -88,10 +95,17 @@ function mouseDragged() {
   
   //generalize the variables so that it can be used regardless of image size
 
-  let xm = mouseX;
+//   let xm = mouseX;
   
-  pamFromX = panToX;
+  panFromX = panToX;
   panFromY = panToY;
+  
+  //imgBldgs variables with pan feature
+  
+  xBldgShift = panToX - panFromX;
+  yBldgShift = panToY - panFromY;
+  imgBldgX = imgBldgX + xShift;
+  imgBldgY = imgBldgY + yShift;
   
   originalSize();
   ifLargerImage();
@@ -102,7 +116,16 @@ function originalSize() {
   if ((imgW == rightWall) && (imgH == bottomWall) || (imgW < rightWall) || (imgH < bottomWall)) { 
     imgX = constrain(imgX, leftWall, rightWall - imgW);
     imgY = constrain(imgY, upperWall, bottomWall  - imgH);
-  }    
+    
+    //keeps image at the original size if user tries to make image smaller than screen size
+    imgW = rightWall;
+    imgH = bottomWall;
+  }   
+  
+  // if ((imgBldgW == rightWall) && (imgBldgH == bottomWall) || (imgBldgW < rightWall) || (imgBldgH < bottomWall)) { 
+  //   imgBldgX = constrain(imgBldgX, leftWall, rightWall - imgBldgW);
+  //   imgBldgY = constrain(imgBldgY, upperWall, bottomWall  - imgBldgH);
+  // }  
 }
 
 function ifLargerImage() { 
@@ -110,18 +133,15 @@ function ifLargerImage() {
   originalFramey = bottomWall - upperWall;
   
   //make new conditions if image size is bigger than size of original screen
-   if ((imgW > rightWall) || (imgH > bottomWall)) {
+  if ((imgW > rightWall) || (imgH > bottomWall)) {
     imgX = constrain(imgX, -(imgW - originalFramex), -(imgW - originalFramex) + (imgW - rightWall));
     imgY = constrain(imgY, -(imgH - originalFramey), -(imgH - originalFramey) + (imgH - bottomWall));
   } 
-}
-
-function ifSmallImage() {  
-  // resets the photo to original size if user tries to make image smaller than screen size
-  if ((imgW < rightWall) || (imgH < bottomWall)) {
-    imgW = rightWall;
-    imgH = bottomWall;
-  }  
+  
+  // if ((imgBldgW > rightWall) || (imgBldgH > bottomWall)) {
+  //   imgBldgX = constrain(imgBldgX, -(imgBldgW - originalFramex), -(imgBldgW - originalFramex) + (imgBldgW - rightWall));
+  //   imgBldgY = constrain(imgBldgY, -(imgBldgH - originalFramey), -(imgBldgH - originalFramey) + (imgBldgH - bottomWall));
+  // } 
 }
 
 function keyPressed() {
@@ -135,7 +155,12 @@ function keyPressed() {
   if (key == 'p'){
     imgW = int(imgW * (1 + scaleFactor));
     imgH = int(imgH * (1 + scaleFactor));
-    //imgX = constrain(imgX, -leftWall * (1 + scaleFactor), -rightWall * (1 + scaleFactor));
+    
+    imgBldgW = int(imgBldgW * (1 + scaleFactor));
+    imgBldgH = int(imgBldgH * (1 + scaleFactor));
+    // bldgCode = red(imgBldgs.get(mouseX, mouseY));
+    // bldgName = getFeatureName(bldgCode, tblBldgs);
+    // returnName = text(bldgName, 610, 340, 150, 150);
   }
   
   //zoom out
@@ -162,3 +187,4 @@ function mouseWheel(event) {
 function windowResize() {
   resizeCanvas(windowWidth, windowHeight);
 }
+
