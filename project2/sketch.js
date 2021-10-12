@@ -9,7 +9,6 @@ imgBldgH = 0;
 
 let name;
 let order;
-let nameorder;
 
 //old image width and height
 imgWOld = 0;
@@ -69,7 +68,7 @@ function setup() {
 }
 
 function draw() {
-  background(0);  
+  background(0);
   
   bldgImg = image(img, imgX, imgY, imgBldgW, imgBldgH); //building map (added)
   mainImg = image(img, imgX, imgY, imgW, imgH); //larger image in main screen 
@@ -89,25 +88,26 @@ function draw() {
   finderRect = rect(findX, findY, findW, findH);
   pop(); 
   
+  //need to refer these functions in draw as well to prevent any of the gaps from being seen
   originalSize();
   ifLargerImage();
   ifSmallImage();  
 }
 
-function finderRectangle(){
+function finderRectangle() {
   //constrain the find rectangle before drawing!
   if (findX < 0){
-    findX = 0;
+    findX = 0; //constrains finder rectangle on the left side
   }
   if (findX + findW > 200){
-    findX = 200 - findW;
+    findX = 200 - findW; //constrains finder rectangle on the right side
   } 
   if (findY < 0){
-    findY = 0;
+    findY = 0; //constrains finder rectangle on the top side
   }
   if (findY + findH > 150){
-    findY = 150 - findH;
-  }   
+    findY = 150 - findH; //constrains finder rectangle on the bottom side
+  }
 }
 
 function introScreen() {
@@ -130,8 +130,6 @@ function getFeatureName(grayVal, tbl) {
     if(grayVal == code){
       name = tbl.get(i, "Name");
       order = tbl.get(i, "ORDER"); //replace with water data later
-      nameorder = console.log(i, name + ", "  + order);
-      return nameorder;
     }
   }
 }
@@ -156,23 +154,21 @@ function mouseDragged() {
   imgX = imgX + xShift;
   imgY = imgY + yShift;
 
-  findX = findX - (xShift/4);
-  findY = findY - (yShift/4);
+  findX = findX - (xShift/3);
+  findY = findY - (yShift/3);
   
   panFromX = panToX;
   panFromY = panToY;
   
   originalSize();
   ifLargerImage();
-  ifSmallImage();
-  
+  ifSmallImage();  
 }
 
 function originalSize(){
   if ((imgW == rightWall) && (imgH == bottomWall) || (imgW < rightWall) || (imgH < bottomWall)) { 
       imgX = constrain(imgX, leftWall, rightWall - imgW);
       imgY = constrain(imgY, upperWall, bottomWall  - imgH);
-      finderRect = constrain(finderRect, rightWall, 800);
     }
 }  
 
@@ -188,13 +184,17 @@ function ifLargerImage() {
   //this constrains the enlarged image within the canvas if the borders of the image touch the borders of the canvas size
 }
 
-
 function ifSmallImage() {  
   // resets the photo to original size if user tries to make image smaller than screen size
   if ((imgW < rightWall) || (imgH < bottomWall)) {
     imgW = rightWall;
     imgH = bottomWall;
-  }  
+  } 
+  //constrains the finder rectangle to prevent it from getting bigger than overview
+  if ((findW > rightWallCanvas) || (findH > bottomWallOverview)){
+    findW = 200;
+    findH = 150;
+  }
 }
 
 function keyPressed() { 
@@ -208,19 +208,17 @@ function keyPressed() {
     
     imgBldgW = rightWall;
     imgBldgH = bottomWall;
-
-    //finderRect = rect(findX, findY, findW/2, findH/2);
+    
     findW = overW * findScale;
     findH = overH * findScale;
-    finderRect = rect(findX, findY, findW/2, findH/2);
+    finderRect = rect(findX, findY, findW, findH);
   }
 }
 
 function mouseWheel(event) {
   scaleFactor  = event.delta * -0.001;
   
-  rectangleScaleFactorW = event.delta * -(0.001 / 3);
-  rectangleScaleFactorH = event.delta * -(0.001 / 3);
+  rectangleScaleFactor = event.delta * -(0.001 * (3/4));
   //delta is known to mouseWheel 
   
   imgWOld = imgW;
@@ -234,8 +232,8 @@ function mouseWheel(event) {
   imgX = mouseX - (((mouseX - imgX)/ imgWOld) * imgW);
   imgY = mouseY - (((mouseY - imgY)/ imgHOld) * imgH);
   
-  findW = int(findW * (1 - rectangleScaleFactorW));
-  findH = int(findH * (1 - rectangleScaleFactorH));
+  findW = int(findW * (1 - rectangleScaleFactor));
+  findH = int(findH * (1 - rectangleScaleFactor));
   
   //uses finder rectangle to locate where the mouse is located
   findX = mouseX/3 - ((mouseX/3 - findX) / findWOld) * findW;
@@ -245,4 +243,3 @@ function mouseWheel(event) {
 function windowResize() {
   resizeCanvas(windowWidth, windowHeight);
 }
-
