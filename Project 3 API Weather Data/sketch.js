@@ -49,14 +49,14 @@ function setup() {
     iconUrl: "nl_windmill.png",
     iconSize: [60], // size of the icon
     iconAnchor: [20, 59], // point of the icon which will correspond to marker's location
-    popupAnchor: [-2, -5], // point from which the popup should open relative to the iconAnchor
+    popupAnchor: [4, -40], // point from which the popup should open relative to the iconAnchor
   });
 
   var myIconBE = L.icon({
     iconUrl: "flanders.jpg",
     iconSize: [25], // size of the icon
     iconAnchor: [20, 59], // point of the icon which will correspond to marker's location
-    popupAnchor: [-2, -5], // point from which the popup should open relative to the iconAnchor
+    popupAnchor: [4, -40], // point from which the popup should open relative to the iconAnchor
   });
 
   if (weather_nl) {
@@ -143,7 +143,7 @@ function setup() {
           marker_b.on("mouseout", function (e) {
             this.closePopup();
           });
-        } else if (weatherDetailNL == "broken clouds") {
+        } else if (weatherDetailNL == "broken clouds") { //broken ckouds - 5/10 to 9/10 cloudy skies, almost overcast so almost the same as overcast - should still show a different icon.
           var marker_c = L.marker([lat_NL, lon_NL], { icon: myIconNL })
             .addTo(map)
             .bindPopup(
@@ -440,3 +440,4 @@ function draw() {
     100
   );
 }
+
